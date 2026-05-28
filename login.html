@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pusat Sumber KKHS — Login</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <style>
+    :root{
+      --library-primary:#5B4636;
+      --library-secondary:#A67C52;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:sans-serif;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:
+        linear-gradient(rgba(248,244,238,.96),rgba(248,244,238,.96)),
+        url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=1200&auto=format&fit=crop');
+      background-size:cover;
+      background-attachment:fixed;
+    }
+    .login-card{
+      width:380px;
+      max-width:90%;
+      background:rgba(255,255,255,.92);
+      border-radius:28px;
+      padding:2.2rem;
+      border:1px solid #E8DCCF;
+      box-shadow:0 20px 50px rgba(0,0,0,.1);
+    }
+    .login-header{
+      text-align:center;
+      margin-bottom:2rem;
+    }
+    .login-icon{
+      font-size:48px;
+      margin-bottom:12px;
+    }
+    .login-header h1{
+      font-size:22px;
+      font-weight:700;
+      color:var(--library-primary);
+      margin-bottom:6px;
+    }
+    .login-header p{
+      font-size:13px;
+      color:#8C7764;
+    }
+    .field{
+      margin-bottom:14px;
+    }
+    .field label{
+      display:block;
+      margin-bottom:6px;
+      font-size:12px;
+      font-weight:600;
+      color:#7D6652;
+    }
+    .field input{
+      width:100%;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid #DDD2C7;
+      background:#FFFEFC;
+      font-size:14px;
+    }
+    .field input:focus{
+      outline:none;
+      border-color:var(--library-secondary);
+      box-shadow:0 0 0 4px rgba(166,124,82,.12);
+    }
+    .btn-login{
+      width:100%;
+      padding:13px;
+      border:none;
+      border-radius:14px;
+      background:var(--library-primary);
+      color:white;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+      margin-top:6px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      transition:.18s ease;
+    }
+    .btn-login:hover{opacity:.9;}
+    .btn-login:disabled{opacity:.6;cursor:not-allowed;}
+    .error-msg{
+      display:none;
+      background:#FDECEC;
+      color:#A43737;
+      border:1px solid #F5BFBF;
+      border-radius:12px;
+      padding:10px 14px;
+      font-size:13px;
+      margin-bottom:14px;
+      text-align:center;
+    }
+    .error-msg.show{display:block;}
+    .footer-note{
+      text-align:center;
+      margin-top:1.4rem;
+      color:#8F7A68;
+      font-size:11px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-card">
+  <div class="login-header">
+    <div class="login-icon">📚</div>
+    <h1>Pusat Sumber KKHS</h1>
+    <p>Sign in to access the admin dashboard</p>
+  </div>
+
+  <div class="error-msg" id="error-msg">
+    <i class="ti ti-alert-circle"></i> Incorrect password. Please try again.
+  </div>
+
+  <div class="field">
+    <label>Password</label>
+    <input type="password" id="inp-password" placeholder="Enter password" onkeydown="if(event.key==='Enter') doLogin()">
+  </div>
+
+  <button class="btn-login" id="btn-login" onclick="doLogin()">
+    <i class="ti ti-lock-open"></i> Sign in
+  </button>
+
+  <div class="footer-note">📚 Pusat Sumber Management System • KKHS</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAADuOl50BzymoigLKHWzhlbtfLMXh9-aI",
+  authDomain: "librarian-system-68c90.firebaseapp.com",
+  projectId: "librarian-system-68c90",
+  storageBucket: "librarian-system-68c90.firebasestorage.app",
+  messagingSenderId: "805862869800",
+  appId: "1:805862869800:web:8d7a79aa1cd59b9e621e1d",
+  measurementId: "G-5GF9FDZSJ8"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// If already logged in, skip straight to dashboard
+onAuthStateChanged(auth, (user) => {
+  if (user) window.location.href = "index.html";
+});
+
+window.doLogin = async function () {
+  const password = document.getElementById("inp-password").value;
+  const btn      = document.getElementById("btn-login");
+  const errMsg   = document.getElementById("error-msg");
+
+  if (!password) return;
+
+  btn.disabled = true;
+  btn.innerHTML = `<i class="ti ti-loader"></i> Signing in...`;
+  errMsg.classList.remove("show");
+
+  try {
+    await signInWithEmailAndPassword(auth, "ajkdisiplin@gmail.com", password);
+    window.location.href = "index.html";
+  } catch (e) {
+    errMsg.classList.add("show");
+    btn.disabled = false;
+    btn.innerHTML = `<i class="ti ti-lock-open"></i> Sign in`;
+  }
+};
+</script>
+
+</body>
+</html>
